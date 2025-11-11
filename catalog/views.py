@@ -13,8 +13,8 @@ def index(request: HttpRequest) -> HttpResponse:
     num_books = Book.objects.all().count()
     num_authors = Author.objects.all().count()
     num_literary_formats = LiteraryFormat.objects.all().count()
-    num_visits = request.session.get('num_visits', 0)
-    request.session['num_visits'] = num_visits + 1
+    num_visits = request.session.get("num_visits", 0)
+    request.session["num_visits"] = num_visits + 1
     context = {
         "num_books": num_books,
         "num_authors": num_authors,
@@ -56,7 +56,7 @@ class LiteraryFormatDeleteView(LoginRequiredMixin, generic.DeleteView):
 
 class BookListView(LoginRequiredMixin, generic.ListView):
     model = Book
-    paginate_by = 2
+    paginate_by = 10
 
     def get_context_data(self, *, object_list = None, **kwargs):
         context = super(BookListView, self).get_context_data(**kwargs)
@@ -70,7 +70,7 @@ class BookListView(LoginRequiredMixin, generic.ListView):
         queryset = Book.objects.select_related("format")
         form  = BookSearchForm(self.request.GET)
         if form.is_valid():
-            return queryset.filter(title__icontains=form.cleaned_data["title"])
+            return queryset.filter(title__icontains=form.cleaned_data["title"]).prefetch_related("author")
         return queryset
 
 
